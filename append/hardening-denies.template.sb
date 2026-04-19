@@ -1,0 +1,30 @@
+;; ---------------------------------------------------------------------------
+;; dotSafehouse hardening denies (appended via `safehouse --append-profile`)
+;; Rendered from hardening-denies.template.sb by install.sh; __HOME__ is
+;; substituted with $HOME at install time so the same template works on any
+;; machine.
+;;
+;; These denies are last in the composed policy -> last-match-wins guarantees
+;; they hold even if a future Safehouse module re-opens these paths.
+;; Most of them are already deny-by-default; the file documents intent and
+;; guards against upstream drift.
+;; ---------------------------------------------------------------------------
+
+;; SSH private keys / PEM material
+(deny file-read* file-write*
+    (regex #"^__HOME__/\.ssh/id_")
+    (regex #"^__HOME__/\.ssh/.*\.pem$"))
+
+;; Cloud credentials
+(deny file-read* file-write*
+    (subpath "__HOME__/.aws")
+    (subpath "__HOME__/.config/gcloud"))
+
+;; macOS Keychains (intentional: codex/claude keychain-backed auth disabled)
+(deny file-read* file-write*
+    (subpath "__HOME__/Library/Keychains"))
+
+;; Messaging / password-manager app state
+(deny file-read* file-write*
+    (subpath "__HOME__/Library/Application Support/Slack")
+    (subpath "__HOME__/Library/Application Support/1Password"))
