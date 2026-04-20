@@ -41,10 +41,17 @@ else
   git -C "$SAFEHOUSE_SRC" checkout --quiet "$SAFEHOUSE_REF"
 fi
 
-# 2. Symlink the CLI into ~/.local/bin
+# 2. Install a wrapper into ~/.local/bin (NOT a symlink: safehouse.sh resolves
+#    lib/ via dirname "$BASH_SOURCE", which would point at ~/.local/bin/lib
+#    through a symlink and blow up).
 mkdir -p "$(dirname "$SAFEHOUSE_BIN_DST")"
-ln -sfn "$SAFEHOUSE_SRC/bin/safehouse.sh" "$SAFEHOUSE_BIN_DST"
-log "linked $SAFEHOUSE_BIN_DST -> $SAFEHOUSE_SRC/bin/safehouse.sh"
+rm -f "$SAFEHOUSE_BIN_DST"
+cat > "$SAFEHOUSE_BIN_DST" <<EOF
+#!/usr/bin/env bash
+exec "$SAFEHOUSE_SRC/bin/safehouse.sh" "\$@"
+EOF
+chmod +x "$SAFEHOUSE_BIN_DST"
+log "wrote wrapper $SAFEHOUSE_BIN_DST -> $SAFEHOUSE_SRC/bin/safehouse.sh"
 
 # 3. Render hardening-denies with this machine's $HOME
 mkdir -p "$APPEND_DST_DIR"
