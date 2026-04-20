@@ -4,7 +4,7 @@
 # cloud creds, Keychains, Slack, and 1Password app state.
 
 export DOTSAFEHOUSE_APPEND="$HOME/.config/dotSafehouse/hardening-denies.sb"
-export DOTSAFEHOUSE_ENABLE="shell-init,ssh,docker,clipboard,macos-gui"
+export DOTSAFEHOUSE_ENABLE="shell-init,ssh,clipboard,macos-gui"
 export DOTSAFEHOUSE_RW="$HOME/.claude:$HOME/CODE/doc"
 export DOTSAFEHOUSE_RO="$HOME/CODE/claude-jingles"
 
@@ -33,6 +33,24 @@ safe-shell() {
     --add-dirs-ro="$DOTSAFEHOUSE_RO" \
     --append-profile "$DOTSAFEHOUSE_APPEND" \
     -- /bin/zsh -l "$@"
+}
+
+safe-policy() {
+  command safehouse \
+    --enable="$DOTSAFEHOUSE_ENABLE" \
+    --add-dirs="$DOTSAFEHOUSE_RW" \
+    --add-dirs-ro="$DOTSAFEHOUSE_RO" \
+    --append-profile "$DOTSAFEHOUSE_APPEND" \
+    --stdout | less
+}
+
+safe-explain() {
+  command safehouse \
+    --enable="$DOTSAFEHOUSE_ENABLE" \
+    --add-dirs="$DOTSAFEHOUSE_RW" \
+    --add-dirs-ro="$DOTSAFEHOUSE_RO" \
+    --append-profile "$DOTSAFEHOUSE_APPEND" \
+    --explain -- /usr/bin/true
 }
 
 alias safe-logs='sudo /usr/bin/log stream --style compact --predicate '\''eventMessage CONTAINS "Sandbox:" AND eventMessage CONTAINS "deny("'\'''
