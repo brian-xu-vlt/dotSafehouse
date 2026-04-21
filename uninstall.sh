@@ -13,9 +13,9 @@ MARK_END="# <<< dotSafehouse (managed) <<<"
 
 log() { printf '\033[1;36m[dotSafehouse]\033[0m %s\n' "$*"; }
 
-if [[ -L "$SAFEHOUSE_BIN_DST" ]]; then
+if [[ -e "$SAFEHOUSE_BIN_DST" || -L "$SAFEHOUSE_BIN_DST" ]]; then
   rm "$SAFEHOUSE_BIN_DST"
-  log "removed symlink $SAFEHOUSE_BIN_DST"
+  log "removed $SAFEHOUSE_BIN_DST"
 fi
 
 if [[ -f "$APPEND_DST" ]]; then
