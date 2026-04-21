@@ -1,14 +1,47 @@
 ;; ---------------------------------------------------------------------------
-;; dotSafehouse hardening denies (appended via `safehouse --append-profile`)
+;; dotSafehouse hardening deltas (appended via `safehouse --append-profile`)
 ;; Rendered from hardening-denies.template.sb by install.sh; __HOME__ is
 ;; substituted with $HOME at install time so the same template works on any
 ;; machine.
 ;;
-;; These denies are last in the composed policy -> last-match-wins guarantees
-;; they hold even if a future Safehouse module re-opens these paths.
-;; Most of them are already deny-by-default; the file documents intent and
+;; These rules are last in the composed policy -> last-match-wins guarantees
+;; the denies hold even if a future Safehouse module re-opens these paths.
+;; Most denies are already deny-by-default; the file documents intent and
 ;; guards against upstream drift.
+;;
+;; A small set of *allows* is also included for tools not yet covered by
+;; upstream `agent-safehouse` (e.g. Graphite `gt`).
 ;; ---------------------------------------------------------------------------
+
+;; ===========================================================================
+;; Allows: tools not (yet) covered by upstream agent-safehouse
+;; ===========================================================================
+
+;; Graphite CLI (gt) — LOCAL-ONLY stack management. Enough for `gt log`,
+;; `gt track`, `gt create`, `gt modify`, `gt restack`, `gt squash`, etc.
+;; The auth token (~/.config/graphite/user_config) is explicitly denied
+;; below so `gt submit`, `gt sync`, `gt pr`, `gt get` fail at the auth
+;; check — no API calls to app.graphite.dev from the sandbox.
+;;
+;; Caveat: `gt submit`'s git-push loop runs over SSH (enabled for plain
+;; `git push`). In modern gt the auth check is upfront and should abort
+;; before any push, but that's a gt-internal guarantee, not a sandbox
+;; guarantee. If you want a hard block on any remote side effect, drop
+;; `ssh` from DOTSAFEHOUSE_ENABLE — note it also breaks plain `git push`.
+(allow file-read* file-write*
+    (subpath "__HOME__/.config/graphite")
+    (subpath "__HOME__/.local/share/graphite")
+    (subpath "__HOME__/.local/state/graphite")
+    (subpath "__HOME__/.cache/graphite"))
+
+;; Deny the Graphite auth token. Last-match-wins: overrides the allow
+;; above for this one file.
+(deny file-read* file-write*
+    (literal "__HOME__/.config/graphite/user_config"))
+
+;; ===========================================================================
+;; Denies: last-match-wins hardening
+;; ===========================================================================
 
 ;; SSH private keys / PEM material
 (deny file-read* file-write*
