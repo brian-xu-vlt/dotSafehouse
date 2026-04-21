@@ -1,7 +1,7 @@
 # dotSafehouse aliases (managed by install.sh — edit the template, not here).
-# Runs agents under eugene1g/agent-safehouse with the feature set chosen for
-# the inato-marketplace workflow, plus an extra deny layer for SSH keys,
-# cloud creds, Keychains, Slack, and 1Password app state.
+# Runs agents under eugene1g/agent-safehouse with a chosen feature set,
+# plus an extra deny layer for SSH keys, cloud creds, Keychains, Slack,
+# and 1Password app state.
 
 export DOTSAFEHOUSE_APPEND="$HOME/.config/dotSafehouse/hardening-denies.sb"
 export DOTSAFEHOUSE_ENABLE="shell-init,ssh,clipboard,macos-gui"

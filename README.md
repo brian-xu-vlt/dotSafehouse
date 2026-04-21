@@ -1,9 +1,8 @@
 # dotSafehouse
 
 Thin wrapper around [eugene1g/agent-safehouse](https://github.com/eugene1g/agent-safehouse)
-that defines how to run `claude` and `codex` safely for the `inato-marketplace`
-workflow. Ships the `--enable` feature set, a small deny-only append-profile,
-and zsh shortcuts.
+that defines how to run `claude` and `codex` safely. Ships the `--enable`
+feature set, a small deny-only append-profile, and zsh shortcuts.
 
 No hand-rolled sandbox profile is kept here — all policy comes from upstream
 `agent-safehouse`; this repo only layers on the deltas.
@@ -17,7 +16,7 @@ No hand-rolled sandbox profile is kept here — all policy comes from upstream
 | Hardening deny append-profile | `~/.config/dotSafehouse/hardening-denies.sb` | `append/hardening-denies.template.sb` (with `__HOME__` substituted for your `$HOME`) |
 | Shell aliases | block in `~/.zshrc` between `# >>> dotSafehouse (managed) >>>` markers | `shell/zshrc.snippet` |
 
-## Enabled Safehouse features for inato-marketplace
+## Enabled Safehouse features
 
 `--enable=shell-init,ssh,docker,clipboard`
 
@@ -63,7 +62,7 @@ DOTSAFEHOUSE_SAFEHOUSE_REF=<sha-or-tag> ~/dotSafehouse/install.sh
 ## Usage
 
 ```bash
-cd ~/CODE/inato-marketplace
+cd /path/to/your/repo
 safe-claude           # Claude Code, sandboxed to this repo
 safe-codex            # Codex CLI, sandboxed to this repo
 safe-shell            # interactive zsh under the same sandbox (debugging)

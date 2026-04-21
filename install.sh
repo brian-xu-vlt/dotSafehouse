@@ -88,7 +88,7 @@ else
   warn "safehouse --help returned non-zero; check \`$SAFEHOUSE_BIN_DST --help\` manually"
 fi
 
-log "done. Open a new shell (\`exec zsh -l\`) then try, from inato-marketplace:"
+log "done. Open a new shell (\`exec zsh -l\`) then try, from a project dir:"
 printf '    safe-shell -c "echo ok > /tmp/t && cat /tmp/t"\n'
 printf '    safe-claude\n'
 printf '    safe-codex\n'
