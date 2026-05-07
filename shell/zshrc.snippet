@@ -8,13 +8,22 @@ export DOTSAFEHOUSE_ENABLE="shell-init,ssh,clipboard,macos-gui"
 export DOTSAFEHOUSE_RW="$HOME/.claude:$HOME/CODE/doc"
 export DOTSAFEHOUSE_RO="$HOME/CODE/claude-jingles"
 
+# Briefing injected into Claude's system prompt by safe-claude so the agent
+# knows it is sandboxed and routes refusals through the bv--sandbox-handoff
+# skill instead of retrying or improvising. Keep it short — every token here
+# rides in every safe-claude session forever. Avoid backticks / apostrophes
+# so the string stays safe inside double quotes.
+export DOTSAFEHOUSE_CLAUDE_BRIEFING="You are running under agent-safehouse via the safe-claude wrapper. Some paths, sockets, and hosts are denied by policy. Active grants live in ~/CODE/dotSafehouse/shell/zshrc.snippet (DOTSAFEHOUSE_RW, DOTSAFEHOUSE_RO, DOTSAFEHOUSE_ENABLE). On EPERM, EACCES, or sandbox-deny errors, do not retry or improvise — invoke the bv--sandbox-handoff skill."
+
 safe-claude() {
   command safehouse \
     --enable="$DOTSAFEHOUSE_ENABLE" \
     --add-dirs="$DOTSAFEHOUSE_RW" \
     --add-dirs-ro="$DOTSAFEHOUSE_RO" \
     --append-profile "$DOTSAFEHOUSE_APPEND" \
-    -- "$HOME/.local/bin/claude" "$@"
+    -- "$HOME/.local/bin/claude" \
+       --append-system-prompt "$DOTSAFEHOUSE_CLAUDE_BRIEFING" \
+       "$@"
 }
 
 safe-codex() {
