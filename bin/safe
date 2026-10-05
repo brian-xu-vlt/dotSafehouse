@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Shell-agnostic entry point for the safe-* commands. install.sh symlinks
+# ~/.local/bin/safe-<name> here; the command is picked from the invoked name.
+# Also callable as `safe <name> [args...]`.
+
+set -eo pipefail
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd -P)"
+source "$REPO_DIR/shell/safehouse.env"
+
+run_safehouse() {
+  SAFE_CLAUDE_SESSION=1 exec "$HOME/.local/bin/safehouse" \
+    --env-pass=SAFE_CLAUDE_SESSION \
+    --enable="$DOTSAFEHOUSE_ENABLE" \
+    --add-dirs="$DOTSAFEHOUSE_RW" \
+    --add-dirs-ro="$DOTSAFEHOUSE_RO" \
+    --append-profile "$DOTSAFEHOUSE_APPEND" \
+    "$@"
+}
+
+command_name="$(basename "$0")"
+if [[ "$command_name" == "safe" ]]; then
+  command_name="safe-${1:?usage: safe <claude|codex|shell|policy|explain|logs> [args...]}"
+  shift
+fi
+
+case "$command_name" in
+  safe-claude)
+    run_safehouse -- "$HOME/.local/bin/claude" \
+      --append-system-prompt "$DOTSAFEHOUSE_CLAUDE_BRIEFING" \
+      "$@"
+    ;;
+  safe-codex)
+    codex_path="$(command -v codex)" || { echo "safe-codex: codex not found in PATH" >&2; exit 127; }
+    run_safehouse -- "$codex_path" "$@"
+    ;;
+  safe-shell)
+    run_safehouse -- /bin/zsh -l "$@"
+    ;;
+  safe-policy)
+    run_safehouse --stdout | less
+    ;;
+  safe-explain)
+    run_safehouse --explain -- /usr/bin/true
+    ;;
+  safe-logs)
+    exec sudo /usr/bin/log stream --style compact --predicate 'eventMessage CONTAINS "Sandbox:" AND eventMessage CONTAINS "deny("'
+    ;;
+  *)
+    echo "safe: unknown command '$command_name'" >&2
+    exit 2
+    ;;
+esac
