@@ -39,6 +39,13 @@
 (deny file-read* file-write*
     (literal "__HOME__/.config/graphite/user_config"))
 
+;; Herdr — lets the agent drive herdr-core (`hc`) and the Herdr window
+;; (`herdr-app do`) through their local sockets. File access to these
+;; folders comes from DOTSAFEHOUSE_RW in shell/safehouse.env.
+(allow network-outbound
+    (remote unix-socket (path-regex #"^__HOME__/\.local/state/herdr-core/.+\.sock$"))
+    (remote unix-socket (path-literal "__HOME__/.config/herdr-app/herdr-app.sock")))
+
 ;; ===========================================================================
 ;; Denies: last-match-wins hardening
 ;; ===========================================================================

@@ -1,0 +1,1 @@
+(allow network-outbound (remote unix-socket (path-literal "/Users/brian/Library/Application Support/cmux/cmux.sock")))

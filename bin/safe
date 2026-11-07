@@ -9,12 +9,17 @@ REPO_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd -P)"
 source "$REPO_DIR/shell/safehouse.env"
 
 run_safehouse() {
+  local append_args=() profile
+  IFS=':' read -ra append_profiles <<< "$DOTSAFEHOUSE_APPEND"
+  for profile in "${append_profiles[@]}"; do
+    append_args+=(--append-profile "$profile")
+  done
   SAFE_CLAUDE_SESSION=1 exec "$HOME/.local/bin/safehouse" \
     --env-pass=SAFE_CLAUDE_SESSION \
     --enable="$DOTSAFEHOUSE_ENABLE" \
     --add-dirs="$DOTSAFEHOUSE_RW" \
     --add-dirs-ro="$DOTSAFEHOUSE_RO" \
-    --append-profile "$DOTSAFEHOUSE_APPEND" \
+    "${append_args[@]}" \
     "$@"
 }
 
