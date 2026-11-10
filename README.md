@@ -23,15 +23,20 @@ shadow the commands.
 
 ## Enabled Safehouse features
 
-`--enable=shell-init,ssh,docker,clipboard`
+`--enable=shell-init,ssh,clipboard,macos-gui`
 
 - `shell-init` — zsh startup files (`~/.zshrc`, `~/.zprofile`, completions)
 - `ssh` — SSH agent socket + `known_hosts` writes (so `git push` works)
-- `docker` — Docker/OrbStack/Rancher sockets (HIGH-RISK, opted in)
 - `clipboard` — `pbcopy` / `pbpaste`
+- `macos-gui` — GUI app launch helpers
 
-Not enabled: `1password`, `vscode`, `keychain`, `xcode`, `macos-gui`,
+Not enabled: `docker`, `1password`, `vscode`, `keychain`, `xcode`,
 `microphone`, `spotlight`, `browser-native-messaging`, `chromium-*`.
+
+`docker` stays off on purpose: the docker socket is a full sandbox escape
+(`docker run -v /:/host` reads every denied path). Run docker work outside
+the sandbox: hand it off, or fork an unsandboxed session with
+`/bv-ORCHESTRATE-split-unsafe`.
 
 Agent profiles (`claude-code.sb`, `codex.sb`) and toolchains (node, bun, etc.)
 are auto-selected by Safehouse from the command after `--`.
